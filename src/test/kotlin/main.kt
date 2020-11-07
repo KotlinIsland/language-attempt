@@ -1,7 +1,6 @@
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@ExperimentalStdlibApi
 class MainTests {
     @Test
     fun `lex works`() = assertEquals(listOf("a", "=", "true"), buildList {
