@@ -3,26 +3,20 @@ import kotlin.test.assertEquals
 
 class MainTests {
     @Test
-    fun `lex works`() = assertEquals(listOf("a", "=", "true"), buildList {
-        val l = Lexer("a = true")
-        while (true) when (val n = l.next()) {
-            null -> break
-            else -> add(n)
-        }
-    })
+    fun `lex works`() = assertEquals(listOf(Container("a"), Assign, TrueLiteral), Lexer("a = true").toList())
 
     @Test
     fun `parse works`() =
-        assertEquals(listOf(Assignment(Container("a"), BooleanType(true))), parseModule(Lexer("a = true")).statements)
+        assertEquals(listOf(Container("a") Assignment TrueLiteral), parseModule(Lexer("a = true")).statements)
 
     @Test
     fun `compile works`() {
-        compile(listOf(Assignment(Container("a"), BooleanType(true))))
+        compile(listOf(Container("a") Assignment TrueLiteral))
     }
 
     @Test
     fun `check works`() {
-        check(listOf(Assignment(Container("a"), BooleanType(true))))
+        check(listOf(Container("a") Assignment TrueLiteral))
     }
 
     @Test

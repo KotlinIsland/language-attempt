@@ -2,37 +2,40 @@ fun main(args: Array<String>) {
     main(args[0])
 }
 
-"""
-a = true
-if a == true {
-  a
-}
-"""
-
 fun main(code: String): String = compile(parse(Lexer(code)))
 
 /**
  * turns "a = true" into `["a", "=", "true"]`
- * maybe it can return tokens not strings
- * maybe it can be an iterable?
+ * refactor to use strToToken
  */
-class Lexer(val s: String): Iterable<String> {
+class Lexer(val s: String): Iterable<Token> {
     var pos = 0
-    fun peek(): String {
+    fun peek(): Token {
         val n = s.indexOfAny(charArrayOf(' ', '\n'), pos + 1).takeIf { it != -1 } ?: s.length
-        return s.substring(pos, n)
+        return s.substring(pos, n).toToken()
     }
-    fun next(): String {
+
+    fun next(): Token {
         val n = s.indexOfAny(charArrayOf(' '), pos + 1).takeIf { it != -1 } ?: s.length
         val result = s.substring(pos, n)
         pos = n + 1
-        return result
+        return result.toToken()
     }
 
-    override fun iterator(): Iterator<String> = object : Iterator<String> {
+    override fun iterator(): Iterator<Token> = object : Iterator<Token> {
         override fun hasNext() = pos < s.length
         override fun next() = this@Lexer.next()
     }
+    fun String.toToken() = when (this) {
+        "true" -> TrueLiteral
+        "=" -> Assign
+        "+" -> PlusToken
+        in Regex("\\d+") -> IntLiteral(toInt())
+        // in Regex("_+") -> UnderscoreEntity
+        in Regex("(?i)[a-z_]\\w*") -> Container(this)
+        else -> TODO("huh?")
+    }
+     operator fun Regex.contains(s: String) = this matches s
 }
 
 /**
