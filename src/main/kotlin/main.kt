@@ -8,7 +8,7 @@ fun main(code: String): String = compile(parse(Lexer(code)))
  * turns "a = true" into `["a", "=", "true"]`
  * refactor to use strToToken
  */
-class Lexer(val s: String): Iterable<Token> {
+class Lexer(val s: String) : Iterable<Token> {
     var pos = 0
     fun peek(): Token {
         val n = s.indexOfAny(charArrayOf(' ', '\n'), pos + 1).takeIf { it != -1 } ?: s.length
@@ -22,11 +22,15 @@ class Lexer(val s: String): Iterable<Token> {
         return result.toToken()
     }
 
+    fun hasNext() = pos < s.length
+
     override fun iterator(): Iterator<Token> = object : Iterator<Token> {
         override fun hasNext() = pos < s.length
         override fun next() = this@Lexer.next()
     }
+
     fun String.toToken() = when (this) {
+        "var" -> Var
         "true" -> TrueLiteral
         "=" -> Assign
         "+" -> PlusToken
@@ -35,7 +39,8 @@ class Lexer(val s: String): Iterable<Token> {
         in Regex("(?i)[a-z_]\\w*") -> Container(this)
         else -> TODO("huh?")
     }
-     operator fun Regex.contains(s: String) = this matches s
+
+    operator fun Regex.contains(s: String) = this matches s
 }
 
 /**
@@ -44,11 +49,12 @@ class Lexer(val s: String): Iterable<Token> {
 fun parse(l: Lexer): List<*> = TODO("Figure out where this stands in the parse tree")
 
 
-
 /**
  * turns `[Assignment(Container(name="a"), BooleanTrue)]` into """var a = true"""
  */
-fun compile(l: List<*>): String = TODO("impl compile")
+fun compile(entity: Entity): String {
+    TODO("LOOL!")
+}
 
 /**
  * Checks the parsed code is valid.
@@ -58,3 +64,70 @@ fun compile(l: List<*>): String = TODO("impl compile")
  * CompilerVariable(name="a", staticType=BooleanType, valueType=BooleanType, value=BooleanType(true))
  */
 fun check(l: List<*>): List<Error> = TODO("impl check")
+
+class Scope {
+    val things = mutableMapOf<String, Entity>()
+}
+
+class CallStack {
+    val scopes = mutableListOf(Scope())
+    fun addThing(entity: NamedEntity) {
+        scopes.last().things[entity.name] = entity
+    }
+    fun newScope() { scopes.add(Scope()) }
+    fun endScope() { scopes.removeLast() }
+}
+
+fun interpret(l: Lexer) {
+    val stack = CallStack()
+    while (l.hasNext()) {
+        when (val it = doParse(l)) {
+            is VarEntity -> stack.addThing(it.container)
+            is Container ->
+        }
+    }
+}
+
+fun doParse(l: Lexer): Entity = when (val t = l.next()) {
+    Var -> parseVar(l)
+    is Container -> parseContainer(l, t)
+    is TrueLiteral -> t
+    else -> TODO("parsed some cringe $t")
+}
+
+val Builtins = mapOf(
+    "print" to { it: Any -> print(it) },
+    "println" to { println(it) },
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

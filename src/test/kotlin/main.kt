@@ -5,6 +5,7 @@ class MainTests {
     @Test
     fun `lex works`() = assertEquals(listOf(Container("a"), Assign, TrueLiteral), Lexer("a = true").toList())
 
+    @ExperimentalStdlibApi
     @Test
     fun `parse works`() =
         assertEquals(listOf(Container("a") Assignment TrueLiteral), parseModule(Lexer("a = true")).statements)
@@ -20,6 +21,10 @@ class MainTests {
     }
 
     @Test
+    /**
+     * a = true
+     * if a {}
+     */
     fun `negative check`(): Unit = TODO(
         """something like
         assertEqual(
