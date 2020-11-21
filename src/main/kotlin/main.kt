@@ -83,7 +83,7 @@ fun interpret(l: Lexer) {
     while (l.hasNext()) {
         when (val it = doParse(l)) {
             is VarEntity -> stack.addThing(it.container)
-            is Container ->
+            is Assignment ->
         }
     }
 }
@@ -92,12 +92,12 @@ fun doParse(l: Lexer): Entity = when (val t = l.next()) {
     Var -> parseVar(l)
     is Container -> parseContainer(l, t)
     is TrueLiteral -> t
+    in Builtins ->
     else -> TODO("parsed some cringe $t")
 }
 
 val Builtins = mapOf(
-    "print" to { it: Any -> print(it) },
-    "println" to { println(it) },
+    ("print") to { it: Any -> println(it) },
 )
 
 

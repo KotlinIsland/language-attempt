@@ -46,6 +46,10 @@ data class Plus(val lhs: Expression<*>, val rhs: Expression<*>) : Entity {
     override fun compile() = lhs.compile() + " + " + rhs.compile()
 }
 
+data class Function(override val name: String /*params, code*/): NamedEntity {
+    override fun compile() = "fun $name() { }"
+}
+
 infix fun Expression<*>.Plus(rhs: Expression<*>) = Plus(this, rhs)
 
 data class Assignment(val lhs: Container, val rhs: Expression<*>) : Entity {
@@ -55,7 +59,7 @@ data class Assignment(val lhs: Container, val rhs: Expression<*>) : Entity {
 infix fun Container.Assignment(rhs: Expression<*>) = Assignment(this, rhs)
 
 data class Container(override val name: String) : NamedEntity {
-    override fun compile() = "var $name"
+    override fun compile() = name
 }
 
 interface Expression<out T : Type> : Entity
@@ -85,11 +89,11 @@ fun continueParsing(l: Lexer, currentEntity: Entity) =
 fun parsePlus(l: Lexer, currentExpression: Expression<*>) =
     currentExpression Plus parseExpression(l)
 
-fun parseContainer(l: Lexer, currentExpression: NamedEntity) {
-    val n = l.next()
-    check(n is Assign /* or dot or plus ..., maybe make this property an interface*/)
-
-    Container(currentExpression.name)
+fun parseContainer(l: Lexer, currentExpression: NamedEntity): Assignment {
+    val op = l.next()
+    check(op is Assign /* or dot or plus ..., maybe make this property an interface*/)
+    val c = Container(currentExpression.name)
+    return c Assignment parseExpression(l)
 }
 
 fun parseAssignment(l: Lexer, currentExpression: Container) =
@@ -110,7 +114,7 @@ fun parseVar(l: Lexer) = VarEntity(
 )
 
 
-data class VarEntity(val container: Container, val value: Expression<*>) : Entity {
+data class VarEntity(val container: Container, val value: Expression<*>) : Entity /*, Assignment */ {
     override fun compile() = "var ${container.compile()} = ${value.compile()}"
 }
 
