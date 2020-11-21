@@ -89,11 +89,10 @@ fun continueParsing(l: Lexer, currentEntity: Entity) =
 fun parsePlus(l: Lexer, currentExpression: Expression<*>) =
     currentExpression Plus parseExpression(l)
 
-fun parseContainer(l: Lexer, currentExpression: NamedEntity): Assignment {
+fun parseContainer(l: Lexer, currentExpression: Container): Assignment {
     val op = l.next()
     check(op is Assign /* or dot or plus ..., maybe make this property an interface*/)
-    val c = Container(currentExpression.name)
-    return c Assignment parseExpression(l)
+    return currentExpression Assignment parseExpression(l)
 }
 
 fun parseAssignment(l: Lexer, currentExpression: Container) =
@@ -104,15 +103,10 @@ class CompilerVariable(val name: String, val staticType: KClass<Type>, var value
 /**
  * just messing around with interpreter
  */
-fun parseVar(l: Lexer) = VarEntity(
-    container = l.next() as Container,
-    run {
-        // TODO : Type
-        check(l.next() is Assign)
-        doParse(l) as Expression<*>
-    },
-)
-
+fun parseVar(l: Lexer): VarEntity {
+    val (c, v) = parseContainer(l, l.next() as Container)
+    return VarEntity(c, v)
+}
 
 data class VarEntity(val container: Container, val value: Expression<*>) : Entity /*, Assignment */ {
     override fun compile() = "var ${container.compile()} = ${value.compile()}"
