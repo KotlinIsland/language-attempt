@@ -66,7 +66,7 @@ fun compile(entity: Entity): String {
 fun check(l: List<*>): List<Error> = TODO("impl check")
 
 class Scope {
-    val things = mutableMapOf<String, Entity>()
+    val things = mutableMapOf<String, Any>()
 }
 
 class CallStack {
@@ -76,10 +76,14 @@ class CallStack {
     }
     fun newScope() { scopes.add(Scope()) }
     fun endScope() { scopes.removeLast() }
+    operator fun set(name: String, value: Any) {
+        scopes.last().things[name] = value
+    }
+    operator fun get(name: String) = scopes.last().things[name]
 }
 
 """
-a = true
+val a = true
 print(a)
 """
 fun interpret(l: Lexer) {
