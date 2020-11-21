@@ -78,13 +78,23 @@ class CallStack {
     fun endScope() { scopes.removeLast() }
 }
 
+"""
+a = true
+print(a)
+"""
 fun interpret(l: Lexer) {
     val stack = CallStack()
     while (l.hasNext()) {
         when (val it = doParse(l)) {
             is VarEntity -> stack.addThing(it.container)
-            is Assignment ->
+            is Assignment -> stack[it.lhs.name] = eval(it.rhs)
         }
+    }
+}
+
+fun eval(e: Expression<*>): Any {
+    when (e) {
+        is
     }
 }
 
