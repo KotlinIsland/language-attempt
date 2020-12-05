@@ -46,13 +46,13 @@ class Lexer(val s: String) : Iterable<Token> {
 /**
  * turns `Lexer returning ... ["a", "=", "true"]` into `[Assignment(Container(name="a"), BooleanTrue)]`
  */
-fun parse(l: Lexer): List<*> = TODO("Figure out where this stands in the parse tree")
+fun parse(l: Lexer): List<Entity> = TODO("Figure out where this stands in the parse tree")
 
 
 /**
  * turns `[Assignment(Container(name="a"), BooleanTrue)]` into """var a = true"""
  */
-fun compile(entity: Entity): String {
+fun compile(entities: List<Entity>): String {
     TODO("LOOL!")
 }
 
@@ -82,10 +82,10 @@ class CallStack {
     operator fun get(name: String) = scopes.last().things[name]
 }
 
-"""
-val a = true
-print(a)
-"""
+//"""
+//val a = true
+//print(a)
+//"""
 fun interpret(l: Lexer) {
     val stack = CallStack()
     while (l.hasNext()) {
