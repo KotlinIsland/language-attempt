@@ -2,13 +2,25 @@ import kotlin.reflect.KClass
 
 interface Type
 class BooleanType : Type
+
 interface Entity {
-    fun compile(): String
+    //these should go somewhere, but maybe not here, if the AST is a representation of the code and not the literal code
+    //itself, the start/end points wouldnt be relevant, only when compiling and parsing would they be relevant
+    val start: Int
+    val end: Int
+
+    //move this? i dont think compile goes in the entites, i think the AST should just be a representation of the
+    // code, and the compiling gets done elsewhere? but idk
+    abstract fun compile(): String
 }
 
 interface ModuleLevelEntity
 
-data class Module(val statements: List<Entity /*Statement*/>) : Entity {
+data class Module(
+    val statements: List<Entity /*Statement*/>
+) : Entity {
+    override val start = statements.first().start
+    override val end = statements.last().end
     override fun compile() = statements.joinToString("\n") { it.compile() }
 }
 
@@ -16,18 +28,18 @@ data class Module(val statements: List<Entity /*Statement*/>) : Entity {
 // The universe of tokens consists of singletons { keywords, operators, whitespace } and
 //  group values like Ints { 1, 2, 3 ... } and symbols { foo, bar ... }
 interface Token
-object TrueLiteral : Expression<BooleanType>, Token {
+class TrueLiteral(override val start: Int, override val end: Int) : Expression<BooleanType>, Token {
     override fun compile() = "true"
 }
 
-object FalseLiteral : Expression<BooleanType>, Token {
+class FalseLiteral(override val start: Int, override val end: Int) : Expression<BooleanType>, Token {
     override fun compile() = "false"
 }
 
 object PlusToken : Token
 object Assign : Token
 object Var : Token
-data class IntLiteral(val value: Int) : Entity, Token {
+data class IntLiteral(override val start: Int, override val end: Int, val value: Int) : Entity, Token {
     override fun compile() = value.toString()
 }
 
@@ -41,24 +53,36 @@ interface NamedEntity : Entity, Token {
 interface BinaryOperator
 enum class BinaryOperators {}
 
-data class Plus(val lhs: Expression<*>, val rhs: Expression<*>) : Entity {
+
+//is this even needed or cringe?
+class LeftAndRightEntity(val lhs: Entity, val rhs: Entity): Entity {
+    override val start = lhs.start
+    override val end = rhs.end
+    override fun compile() = TODO("idk")
+}
+
+data class Plus(val lhs: Expression<*>, val rhs: Expression<*>) : Entity by LeftAndRightEntity(lhs, rhs) {
     override fun toString() = "$lhs Plus $rhs"
     override fun compile() = lhs.compile() + " + " + rhs.compile()
 }
 
-data class Function(override val name: String /*params, code*/): NamedEntity {
+data class Function(
+    override val start: Int,
+    override val end: Int,
+    override val name: String /*params, code*/
+) : NamedEntity {
     override fun compile() = "fun $name() { }"
 }
 
 infix fun Expression<*>.Plus(rhs: Expression<*>) = Plus(this, rhs)
 
-data class Assignment(val lhs: Container, val rhs: Expression<*>) : Entity {
+data class Assignment(val lhs: Container, val rhs: Expression<*>) : Entity by LeftAndRightEntity(lhs, rhs) {
     override fun compile() = "${lhs.compile()} = ${rhs.compile()}"
 }
 
 infix fun Container.Assignment(rhs: Expression<*>) = Assignment(this, rhs)
 
-data class Container(override val name: String) : NamedEntity {
+data class Container(override val start: Int, override val end: Int, override val name: String) : NamedEntity {
     override fun compile() = name
 }
 
@@ -73,7 +97,7 @@ fun parseModule(l: Lexer) = Module(/*eww*/buildList { while (l.hasNext()) add(st
 fun startParsing(l: Lexer): Entity =
     when (val t = l.next()) {
         is Entity -> t
-        TrueLiteral -> continueParsing(l, TrueLiteral)
+        is TrueLiteral -> continueParsing(l, TrueLiteral(l.pos, l.pos + t.))
         else -> TODO("started parsing some cringe $t")
     }
 
