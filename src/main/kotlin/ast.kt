@@ -15,7 +15,7 @@ data class Module(val statements: List<Entity /*Statement*/>) : Entity {
 // Tokens
 // The universe of tokens consists of singletons { keywords, operators, whitespace } and
 //  group values like Ints { 1, 2, 3 ... } and symbols { foo, bar ... }
-interface Token //SUS: i think tokens should be separated from entities
+interface Token // SUS: i think tokens should be separated from entities
 object TrueLiteral : Expression<BooleanType>, Token {
     override fun compile() = "true"
 }
@@ -43,7 +43,7 @@ interface NamedEntity : Entity, Token {
 
 // TODO make plus a BinaryOperator
 interface BinaryOperator
-enum class BinaryOperators {}
+enum class BinaryOperators
 
 //  constructor
 infix fun Expression<*>.Plus(rhs: Expression<*>) = Plus<Type>(this, rhs)

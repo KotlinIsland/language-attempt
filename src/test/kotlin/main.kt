@@ -29,7 +29,6 @@ class MainTests {
         check(listOf(Container("a") Assignment TrueLiteral))
     }
 
-
     @Test
     fun `e2e ContainerDeclaration`() =
         assertEquals(

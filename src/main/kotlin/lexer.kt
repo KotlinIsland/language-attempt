@@ -1,4 +1,4 @@
-//TODO: put tokens here (theyre currently coupled with expressions)
+// TODO: put tokens here (theyre currently coupled with expressions)
 
 private data class LexerPosition(val index: Int, val token: Token)
 

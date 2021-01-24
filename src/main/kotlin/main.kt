@@ -23,11 +23,11 @@ fun check(l: List<Entity>): List<Error> {
     return listOf()
 }
 class CheckException : Exception()
-//class Scope {
+// class Scope {
 //    val things = mutableMapOf<String, Any>()
-//}
+// }
 //
-//class CallStack {
+// class CallStack {
 //    val scopes = mutableListOf(Scope())
 //    fun addThing(entity: NamedEntity) {
 //        scopes.last().things[entity.name] = entity
@@ -38,10 +38,9 @@ class CheckException : Exception()
 //        scopes.last().things[name] = value
 //    }
 //    operator fun get(name: String) = scopes.last().things[name]
-//}
+// }
 
-
-//fun interpret(l: Lexer) {
+// fun interpret(l: Lexer) {
 //    val stack = CallStack()
 //    while (l.hasNext()) {
 //        when (val it = doParse(l)) {
@@ -49,54 +48,23 @@ class CheckException : Exception()
 //            is Assignment -> stack[it.lhs.name] = eval(it.rhs)
 //        }
 //    }
-//}
+// }
 //
-//fun eval(e: Expression<*>): Any {
+// fun eval(e: Expression<*>): Any {
 //    when (e) {
 //        is
 //    }
-//}
+// }
 //
-//fun doParse(l: Lexer): Entity = when (val t = l.next()) {
+// fun doParse(l: Lexer): Entity = when (val t = l.next()) {
 //    Var -> parseVar(l)
 //    is Container -> parseContainer(l, t)
 //    is TrueLiteral -> t
 //    in Builtins ->
 //    else -> TODO("parsed some cringe $t")
-//}
+// }
 //
-//val Builtins = mapOf(
+// val Builtins = mapOf(
 //    ("print") to { it: Any -> println(it) },
-//)
+// )
 //
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
