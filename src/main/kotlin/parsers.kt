@@ -28,11 +28,7 @@ fun parseModule(l: Lexer) = Module(/*eww*/buildList { while (l.hasNext()) add(st
 fun startParsing(l: Lexer): Entity =
     when (val t = l.next()) {
         is Expression<*> -> if (l.hasNext()) parseInfix(l, t) else t
-        is Container ->
-            if (l.hasNext())
-                parseInfix(l, t)
-            else
-                error("FAIL!!!! THERE NEEDS TO BE AN EXPRESSION HERE")
+        is Container -> parseInfix(l, t)
         is Entity -> t
         VarToken -> parseContainerDeclaration(l)
         IfToken -> parseIf(l)
@@ -45,7 +41,7 @@ fun parseInfix(l: Lexer, currentEntity: Entity) =
         PlusToken -> (currentEntity as Expression<*>) Plus parseExpression(l)
         Assign -> (currentEntity as Container) Assignment parseExpression(l)
         EqualsToken -> (currentEntity as Expression<*>) Equals parseExpression(l)
-        else -> TODO("continues parsing some cringe $t")
+        else -> TODO("continued parsing some cringe: $t, current: $currentEntity")
     }
 
 fun parseContainerDeclaration(l: Lexer): ContainerDeclaration {

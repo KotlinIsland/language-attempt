@@ -66,7 +66,7 @@ data class Assignment(val lhs: Container, val rhs: Expression<*>) : Entity {
     override fun compile() = "${lhs.compile()} = ${rhs.compile()}"
 }
 
-data class Container(override val name: String) : NamedEntity {
+data class Container(override val name: String) : Expression<Type>, NamedEntity {
     override fun compile() = name
 }
 

@@ -36,4 +36,11 @@ class MainTests {
             "let a = true",
             parse(Lexer("var a = true")).joinToString("\n") { it.compile() }
         )
+
+    @Test
+    fun `e2e if statement`() =
+        assertEquals(
+            "if (a === true) {}",
+            parse(Lexer("if a == true { }")).joinToString("\n") { it.compile() }
+        )
 }

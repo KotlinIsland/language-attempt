@@ -32,6 +32,7 @@ class Lexer(val s: String) : Iterable<Token> {
     fun String.toToken() = when (this) {
         "var" -> VarToken
         "true" -> TrueLiteral
+        "if" -> IfToken
         "=" -> Assign
         "==" -> EqualsToken
         "+" -> PlusToken
