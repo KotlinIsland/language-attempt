@@ -35,6 +35,7 @@ class Lexer(val s: String) : Iterable<Token> {
         "if" -> IfToken
         "=" -> Assign
         "==" -> EqualsToken
+        "!=" -> NotEqualsToken
         "+" -> PlusToken
         "(" -> LeftParenthesis
         ")" -> RightParenthesis

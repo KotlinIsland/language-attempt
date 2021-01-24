@@ -22,6 +22,7 @@ object Assign : Token
 object LeftBrace : Token
 object RightBrace : Token
 object EqualsToken : Token
+object NotEqualsToken : Token
 object LeftParenthesis : Token
 object RightParenthesis : Token
 object LeftBracket : Token
@@ -77,6 +78,12 @@ infix fun Expression<*>.Equals(rhs: Expression<*>) = Equals(this, rhs)
 data class Equals(val lhs: Expression<*>, val rhs: Expression<*>) : Expression<BooleanType> {
     override fun toString() = "$lhs Equals $rhs"
     override fun compile() = "${lhs.compile()} === ${rhs.compile()}"
+}
+
+infix fun Expression<*>.NotEquals(rhs: Expression<*>) = NotEquals(this, rhs)
+data class NotEquals(val lhs: Expression<*>, val rhs: Expression<*>) : Expression<BooleanType> {
+    override fun toString() = "$lhs NotEquals $rhs"
+    override fun compile() = "${lhs.compile()} !== ${rhs.compile()}"
 }
 
 class Block(val body: List<Entity>) : Entity {

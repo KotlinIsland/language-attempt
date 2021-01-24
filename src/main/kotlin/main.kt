@@ -34,6 +34,11 @@ fun check(l: List<Entity>): List<CheckException> {
                     errors += CheckException("redundant value check ${ifEl.lhs.name} is always ${ifEl.rhs}")
                 }
             }
+            is NotEquals -> {
+                if (scope.symbols[(ifEl.lhs as Container).name] != (ifEl.rhs as Literal).value) {
+                    errors += CheckException("redundant value check ${ifEl.lhs.name} is always ${ifEl.rhs}")
+                }
+            }
         }
     }
 

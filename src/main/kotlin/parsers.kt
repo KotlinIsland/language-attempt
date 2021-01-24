@@ -47,6 +47,7 @@ fun Lexer.parseInfix(currentEntity: Entity): Entity {
         PlusToken -> (currentEntity as Expression<*>) Plus parseExpression()
         Assign -> (currentEntity as Container) Assignment parseExpression()
         EqualsToken -> (currentEntity as Expression<*>) Equals parseExpression()
+        NotEqualsToken -> (currentEntity as Expression<*>) NotEquals parseExpression()
         LeftBrace, RightBrace, NewlineToken -> currentEntity // theres no infix to parse
         else -> TODO("continued parsing some cringe: $t, current: $currentEntity")
     }

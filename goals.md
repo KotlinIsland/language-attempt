@@ -2,7 +2,7 @@
 1. value tracking
    ```
    var a = true
-   if (a == true) { } // should be compile error
+   if (a != true) { } // should be compile error
    ```
 1. type checker
 1. type tracker
