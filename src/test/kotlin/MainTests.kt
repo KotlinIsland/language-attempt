@@ -74,4 +74,25 @@ class MainTests {
             "if(a === true) {}",
             compile(parse(Lexer("if a == true { }")))
         )
+
+    @Test
+    fun `infix expression`() =
+        assertEquals(
+            "1 === 1",
+            compile(parse(Lexer("1 == 1")))
+        )
+
+    @Test
+    fun `newline before infix`() =
+        assertEquals(
+            "1 === 1",
+            compile(parse(Lexer("1 \n== 1")))
+        )
+
+    @Test
+    fun `newline after infix`() =
+        assertEquals(
+            "1 === 1",
+            compile(parse(Lexer("1 ==\n 1")))
+        )
 }
