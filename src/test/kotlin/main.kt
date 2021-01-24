@@ -40,7 +40,7 @@ class MainTests {
     @Test
     fun `e2e if statement`() =
         assertEquals(
-            "if (a === true) {}",
+            "if(a === true) {}",
             parse(Lexer("if a == true { }")).joinToString("\n") { it.compile() }
         )
 }

@@ -17,8 +17,7 @@ fun Lexer.parseIf() =
     IfStatement(startParsing() as Expression<BooleanType>, parseBlock())
 
 /**
- * Expression:
- * 1 [(WS+, Infix, Dot) Expression]
+ * Expression [(WS+, Infix, Dot) Expression]
  */
 fun Lexer.parseExpression() = startParsing() as Expression<*>
 
@@ -41,6 +40,7 @@ fun Lexer.parseInfix(currentEntity: Entity) =
         PlusToken -> (currentEntity as Expression<*>) Plus parseExpression()
         Assign -> (currentEntity as Container) Assignment parseExpression()
         EqualsToken -> (currentEntity as Expression<*>) Equals parseExpression()
+        LeftBrace, RightBrace -> currentEntity
         else -> TODO("continued parsing some cringe: $t, current: $currentEntity")
     }
 
