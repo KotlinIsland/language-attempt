@@ -26,7 +26,7 @@ fun Lexer.parseModule() = Module(/*eww*/buildList { while (hasNext()) add(startP
 
 fun Lexer.startParsing(): Entity =
     when (val t = next()) {
-        is Expression<*> -> if (hasNext()) parseInfix(t) else t
+        is Expression<*> -> parseIfHasNext(t, ::parseInfix)
         is Container -> parseInfix(t)
         is Entity -> t
         TrueToken -> parseInfix(Literal(true))
@@ -49,7 +49,7 @@ fun Lexer.parseInfix(currentEntity: Entity): Entity {
         PlusToken -> (currentEntity as Expression<*>) Plus parseExpression()
         Assign -> (currentEntity as Container) Assignment parseExpression()
         EqualsToken -> (currentEntity as Expression<*>) Equals parseExpression()
-        LeftBrace, RightBrace -> currentEntity
+        LeftBrace, RightBrace, NewlineToken -> currentEntity // theres no infix to parse
         else -> TODO("continued parsing some cringe: $t, current: $currentEntity")
     }
 }

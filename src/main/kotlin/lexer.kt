@@ -13,13 +13,15 @@ class Lexer(val s: String) : Iterable<Token> {
     fun next(): Token = nextPosition().also { pos = it.index + 1 }.token
 
     private fun nextPosition() = try {
-        val index = s.indexOfAny(charArrayOf(' ', '\n'), pos + 1).takeIf { it != -1 } ?: s.length
+        val index = s.indexOfAny(charArrayOf(' '), pos + 1).takeIf { it != -1 } ?: s.length
         LexerPosition(index, s.substring(pos, index).toToken())
     } catch (t: Throwable) {
         throw Exception("tried to read past end of file")
     }
 
     fun hasNext() = pos < s.length
+
+    fun parseIfHasNext(entity: Entity, parser: (Entity) -> Entity) = if (hasNext()) parser(entity) else entity
 
     override fun iterator(): Iterator<Token> = object : Iterator<Token> {
         override fun hasNext() = pos < s.length
@@ -40,6 +42,7 @@ class Lexer(val s: String) : Iterable<Token> {
         "]" -> RightBracket
         "{" -> LeftBrace
         "}" -> RightBrace
+        in Regex("\n+") -> NewlineToken
         in Regex("\\d+") -> IntLiteral(toInt())
         // in Regex("_+") -> UnderscoreEntity
         in Regex("(?i)[a-z_]\\w*") -> Container(this /*place holder?*/)
