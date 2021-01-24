@@ -44,7 +44,7 @@ class Lexer(val s: String) : Iterable<Token> {
         "{" -> LeftBrace
         "}" -> RightBrace
         in Regex("\n+") -> NewlineToken
-        in Regex("\\d+") -> IntLiteral(toInt())
+        in Regex("\\d+") -> Literal(toInt())
         // in Regex("_+") -> UnderscoreEntity
         in Regex("(?i)[a-z_]\\w*") -> Container(this /*place holder?*/)
         else -> TODO("huh?")

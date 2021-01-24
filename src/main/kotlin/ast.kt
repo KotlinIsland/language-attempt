@@ -31,9 +31,6 @@ object IfToken : Token
 object VarToken : Token
 object TrueToken : Token
 object FalseToken : Token
-data class IntLiteral(val value: Int) : Entity, Token {
-    override fun compile() = value.toString()
-}
 
 // NamedEntity
 // alphanumeric | underscore, can't be just underscores, can't start with a number
