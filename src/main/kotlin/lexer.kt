@@ -33,6 +33,10 @@ class Lexer(val s: String) : Iterable<Token> {
         "=" -> Assign
         "==" -> EqualsToken
         "+" -> PlusToken
+        "(" -> LeftParenthesis
+        ")" -> RightParenthesis
+        "[" -> LeftBracket
+        "]" -> RightBracket
         "{" -> LeftBrace
         "}" -> RightBrace
         in Regex("\\d+") -> IntLiteral(toInt())

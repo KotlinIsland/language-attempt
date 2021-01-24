@@ -29,6 +29,10 @@ object Assign : Token
 object LeftBrace : Token
 object RightBrace : Token
 object EqualsToken : Token
+object LeftParenthesis : Token
+object RightParenthesis : Token
+object LeftBracket : Token
+object RightBracket : Token
 object IfToken : Token
 object VarToken : Token
 data class IntLiteral(val value: Int) : Entity, Token {

@@ -18,3 +18,12 @@
    val b: Int = f.b
    ```
 1. undefined tracking
+1. union values ie `if a == 1 | 2`
+
+1. The ability to have interfaces and types exist at run time to reduce coding 
+   e.g. 
+   ```ts
+   type SomeType = "a" | "b" | "c"
+   
+   const a = valuesOf SomeType //builds ["a" , "b" , "c"]
+   ```
