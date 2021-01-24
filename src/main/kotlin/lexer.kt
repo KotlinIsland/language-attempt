@@ -7,13 +7,13 @@
 class Lexer(val s: String) : Iterable<Token> {
     var pos = 0
     fun peek(): Token {
-        val n = s.indexOfAny(charArrayOf(' ', '\n'), pos + 1).takeIf { it != -1 } ?: s.length
+        val n = nextNonWhitespaceToken()
         return s.substring(pos, n).toToken()
     }
 
     fun next(): Token {
         val n = try {
-            s.indexOfAny(charArrayOf(' '), pos + 1).takeIf { it != -1 } ?: s.length
+            nextNonWhitespaceToken()
         } catch (t: Throwable) {
             throw Exception("tried to read past end of file")
         }
@@ -21,6 +21,9 @@ class Lexer(val s: String) : Iterable<Token> {
         pos = n + 1
         return result.toToken()
     }
+
+    fun nextNonWhitespaceToken() =
+        s.indexOfAny(charArrayOf(' ', '\n'), pos + 1).takeIf { it != -1 } ?: s.length
 
     fun hasNext() = pos < s.length
 
