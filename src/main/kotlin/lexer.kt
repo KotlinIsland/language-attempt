@@ -1,29 +1,23 @@
 //TODO: put tokens here (theyre currently coupled with expressions)
 
+private data class LexerPosition(val index: Int, val token: Token)
+
 /**
  * turns "a = true" into `["a", "=", "true"]`
  * refactor to use strToToken
  */
 class Lexer(val s: String) : Iterable<Token> {
     var pos = 0
-    fun peek(): Token {
-        val n = nextNonWhitespaceToken()
-        return s.substring(pos, n).toToken()
-    }
+    fun peek(): Token = nextPosition().token
 
-    fun next(): Token {
-        val n = try {
-            nextNonWhitespaceToken()
-        } catch (t: Throwable) {
-            throw Exception("tried to read past end of file")
-        }
-        val result = s.substring(pos, n)
-        pos = n + 1
-        return result.toToken()
-    }
+    fun next(): Token = nextPosition().also { pos = it.index + 1 }.token
 
-    fun nextNonWhitespaceToken() =
-        s.indexOfAny(charArrayOf(' ', '\n'), pos + 1).takeIf { it != -1 } ?: s.length
+    private fun nextPosition() = try {
+        val index = s.indexOfAny(charArrayOf(' ', '\n'), pos + 1).takeIf { it != -1 } ?: s.length
+        LexerPosition(index, s.substring(pos, index).toToken())
+    } catch (t: Throwable) {
+        throw Exception("tried to read past end of file")
+    }
 
     fun hasNext() = pos < s.length
 
