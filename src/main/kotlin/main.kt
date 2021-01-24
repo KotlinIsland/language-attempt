@@ -1,9 +1,3 @@
-fun main(args: Array<String>) {
-    main(args[0])
-}
-
-fun main(code: String): String = compile(parse(Lexer(code)))
-
 /**
  * turns "a = true" into `["a", "=", "true"]`
  * refactor to use strToToken
@@ -33,10 +27,11 @@ class Lexer(val s: String) : Iterable<Token> {
         "var" -> Var
         "true" -> TrueLiteral
         "=" -> Assign
+        "==" -> EqualsToken
         "+" -> PlusToken
         in Regex("\\d+") -> IntLiteral(toInt())
         // in Regex("_+") -> UnderscoreEntity
-        in Regex("(?i)[a-z_]\\w*") -> Container(this)
+        in Regex("(?i)[a-z_]\\w*") -> Container(this /*place holder?*/)
         else -> TODO("huh?")
     }
 
@@ -65,55 +60,52 @@ fun compile(entity: Entity): String {
  */
 fun check(l: List<*>): List<Error> = TODO("impl check")
 
-class Scope {
-    val things = mutableMapOf<String, Any>()
-}
+//class Scope {
+//    val things = mutableMapOf<String, Any>()
+//}
+//
+//class CallStack {
+//    val scopes = mutableListOf(Scope())
+//    fun addThing(entity: NamedEntity) {
+//        scopes.last().things[entity.name] = entity
+//    }
+//    fun newScope() { scopes.add(Scope()) }
+//    fun endScope() { scopes.removeLast() }
+//    operator fun set(name: String, value: Any) {
+//        scopes.last().things[name] = value
+//    }
+//    operator fun get(name: String) = scopes.last().things[name]
+//}
 
-class CallStack {
-    val scopes = mutableListOf(Scope())
-    fun addThing(entity: NamedEntity) {
-        scopes.last().things[entity.name] = entity
-    }
-    fun newScope() { scopes.add(Scope()) }
-    fun endScope() { scopes.removeLast() }
-    operator fun set(name: String, value: Any) {
-        scopes.last().things[name] = value
-    }
-    operator fun get(name: String) = scopes.last().things[name]
-}
 
-"""
-val a = true
-print(a)
-"""
-fun interpret(l: Lexer) {
-    val stack = CallStack()
-    while (l.hasNext()) {
-        when (val it = doParse(l)) {
-            is VarEntity -> stack.addThing(it.container)
-            is Assignment -> stack[it.lhs.name] = eval(it.rhs)
-        }
-    }
-}
-
-fun eval(e: Expression<*>): Any {
-    when (e) {
-        is
-    }
-}
-
-fun doParse(l: Lexer): Entity = when (val t = l.next()) {
-    Var -> parseVar(l)
-    is Container -> parseContainer(l, t)
-    is TrueLiteral -> t
-    in Builtins ->
-    else -> TODO("parsed some cringe $t")
-}
-
-val Builtins = mapOf(
-    ("print") to { it: Any -> println(it) },
-)
-
+//fun interpret(l: Lexer) {
+//    val stack = CallStack()
+//    while (l.hasNext()) {
+//        when (val it = doParse(l)) {
+//            is VarEntity -> stack.addThing(it.container)
+//            is Assignment -> stack[it.lhs.name] = eval(it.rhs)
+//        }
+//    }
+//}
+//
+//fun eval(e: Expression<*>): Any {
+//    when (e) {
+//        is
+//    }
+//}
+//
+//fun doParse(l: Lexer): Entity = when (val t = l.next()) {
+//    Var -> parseVar(l)
+//    is Container -> parseContainer(l, t)
+//    is TrueLiteral -> t
+//    in Builtins ->
+//    else -> TODO("parsed some cringe $t")
+//}
+//
+//val Builtins = mapOf(
+//    ("print") to { it: Any -> println(it) },
+//)
+//
 
 
 

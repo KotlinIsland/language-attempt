@@ -12,7 +12,7 @@ class MainTests {
 
     @Test
     fun `compile works`() {
-        compile(listOf(Container("a") Assignment TrueLiteral))
+        compile(Container("a") Assignment TrueLiteral)
     }
 
     @Test
@@ -34,7 +34,7 @@ class MainTests {
         """
     )
 
-    @Test
-    fun `end to end`() =
-        assertEquals("var a = true\nif (a) {\nconsole.log(1)\n}", main("a = true\nif a == true {\nprint(1)\n}"))
+//    @Test
+//    fun `end to end`() =
+//        assertEquals("var a = true\nif (a) {\nconsole.log(1)\n}", main("a = true\nif a == true {\nprint(1)\n}"))
 }

@@ -26,6 +26,8 @@ object FalseLiteral : Expression<BooleanType>, Token {
 
 object PlusToken : Token
 object Assign : Token
+object EqualsToken : Token
+object IfToken : Token
 object Var : Token
 data class IntLiteral(val value: Int) : Entity, Token {
     override fun compile() = value.toString()
@@ -41,7 +43,9 @@ interface NamedEntity : Entity, Token {
 interface BinaryOperator
 enum class BinaryOperators {}
 
-data class Plus(val lhs: Expression<*>, val rhs: Expression<*>) : Entity {
+//  constructor
+infix fun Expression<*>.Plus(rhs: Expression<*>) = Plus<Type>(this, rhs)
+data class Plus<R : Type>(val lhs: Expression<*>, val rhs: Expression<*>) : Expression<R> {
     override fun toString() = "$lhs Plus $rhs"
     override fun compile() = lhs.compile() + " + " + rhs.compile()
 }
@@ -50,44 +54,75 @@ data class Function(override val name: String /*params, code*/): NamedEntity {
     override fun compile() = "fun $name() { }"
 }
 
-infix fun Expression<*>.Plus(rhs: Expression<*>) = Plus(this, rhs)
-
+// constructor
+infix fun Container.Assignment(rhs: Expression<*>) = Assignment(this, rhs)
 data class Assignment(val lhs: Container, val rhs: Expression<*>) : Entity {
     override fun compile() = "${lhs.compile()} = ${rhs.compile()}"
 }
-
-infix fun Container.Assignment(rhs: Expression<*>) = Assignment(this, rhs)
 
 data class Container(override val name: String) : NamedEntity {
     override fun compile() = name
 }
 
 interface Expression<out T : Type> : Entity
+interface Literal<out T : Type> : Expression<T>
 
+infix fun Expression<*>.Equals(rhs: Expression<*>) = Equals(this, rhs)
+data class Equals(val lhs: Expression<*>, val rhs: Expression<*>) : Expression<BooleanType> {
+    override fun toString() = "$lhs Equals $rhs"
+    override fun compile() = "${lhs.compile()} === ${rhs.compile()}"
+}
+
+class Block(val body: List<Entity>) : Entity  {
+    override fun compile() = body.joinToString("\n") { it.compile() }
+}
+
+class IfStatement(val condition: Expression<BooleanType>, val ifTrue: Block) : Entity {
+    override fun compile() = "if(${condition.compile()}) {${ifTrue.compile()}}"
+}
+
+/**
+ * { Entity* }
+ */
+fun parseBlock(l: Lexer): Block {
+    val entries = ArrayList<Entity>()
+    while (l.hasNext()) {
+        entries += startParsing(l)
+    }
+    return Block(entries)
+}
+
+/**
+ * If Expression Block
+ */
+fun parseIf(l: Lexer) =
+    // CRINGE(how do we know this is the right type?)
+     IfStatement(startParsing(l) as Expression<BooleanType>, parseBlock(l))
+
+/**
+ * Expression:
+ * 1 [(WS+, Infix, Dot) Expression]
+ */
 fun parseExpression(l: Lexer) = startParsing(l) as Expression<*>
 
 @ExperimentalStdlibApi
 fun parseModule(l: Lexer) = Module(/*eww*/buildList { while (l.hasNext()) add(startParsing(l)) })
 
-
 fun startParsing(l: Lexer): Entity =
     when (val t = l.next()) {
         is Entity -> t
         TrueLiteral -> continueParsing(l, TrueLiteral)
+        IfToken -> parseIf(l)
         else -> TODO("started parsing some cringe $t")
     }
 
-
 fun continueParsing(l: Lexer, currentEntity: Entity) =
     when (val t = l.next()) {
-        PlusToken -> parsePlus(l, currentEntity as Expression<*>)
+        PlusToken -> (currentEntity as Expression<*>) Plus parseExpression(l)
         Assign -> parseAssignment(l, currentEntity as Container)
-        else -> TODO("continues parsing come cringe $t")
+        EqualsToken -> (currentEntity as Expression<*>) Equals parseExpression(l)
+        else -> TODO("continues parsing some cringe $t")
     }
-
-
-fun parsePlus(l: Lexer, currentExpression: Expression<*>) =
-    currentExpression Plus parseExpression(l)
 
 fun parseContainer(l: Lexer, currentExpression: Container): Assignment {
     val op = l.next()
@@ -95,59 +130,15 @@ fun parseContainer(l: Lexer, currentExpression: Container): Assignment {
     return currentExpression Assignment parseExpression(l)
 }
 
+/**
+ * Var Container [Equals, Expression] NL
+ */
 fun parseAssignment(l: Lexer, currentExpression: Container) =
     currentExpression Assignment parseExpression(l)
 
 class CompilerVariable(val name: String, val staticType: KClass<Type>, var valueType: KClass<Type>, var value: Type)
 
-/**
- * just messing around with interpreter
- */
-fun parseVar(l: Lexer): VarEntity {
-    val (c, v) = parseContainer(l, l.next() as Container)
-    return VarEntity(c, v)
-}
-
-data class VarEntity(val container: Container, val value: Expression<*>) : Entity /*, Assignment */ {
-    override fun compile() = "var ${container.compile()} = ${value.compile()}"
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// var a = 1
+val a = 1
+infix fun Int.a(other: (Int)-> Unit) {}
 
