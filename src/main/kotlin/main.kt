@@ -10,7 +10,11 @@ class Lexer(val s: String) : Iterable<Token> {
     }
 
     fun next(): Token {
-        val n = s.indexOfAny(charArrayOf(' '), pos + 1).takeIf { it != -1 } ?: s.length
+        val n = try {
+             s.indexOfAny(charArrayOf(' '), pos + 1).takeIf { it != -1 } ?: s.length
+        } catch (t: Throwable) {
+            throw Exception("tried to read past end of file")
+        }
         val result = s.substring(pos, n)
         pos = n + 1
         return result.toToken()
