@@ -8,12 +8,18 @@ class MainTests {
         Lexer("var a = true").toList()
     )
 
-    @ExperimentalStdlibApi
     @Test
     fun `parse works`() =
         assertEquals(
             listOf(ContainerDeclaration(Container("a"), Literal(true))),
             parse(Lexer("var a = true"))
+        )
+
+    @Test
+    fun `parse module`() =
+        assertEquals(
+            Module(listOf(ContainerDeclaration(Container("a")))),
+            Lexer("var a").parseModule()
         )
 
     @Test
