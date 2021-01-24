@@ -26,6 +26,8 @@ object FalseLiteral : Expression<BooleanType>, Token {
 
 object PlusToken : Token
 object Assign : Token
+object LeftBrace : Token
+object RightBrace : Token
 object EqualsToken : Token
 object IfToken : Token
 object VarToken : Token
