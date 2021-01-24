@@ -113,10 +113,10 @@ fun parseModule(l: Lexer) = Module(/*eww*/buildList { while (l.hasNext()) add(st
 
 fun startParsing(l: Lexer): Entity =
     when (val t = l.next()) {
-        is Expression<*> -> if (l.hasNext()) continueParsing(l, t) else t
+        is Expression<*> -> if (l.hasNext()) parseInfix(l, t) else t
         is Container ->
             if (l.hasNext())
-                continueParsing(l, t)
+                parseInfix(l, t)
             else
                 error("FAIL!!!! THERE NEEDS TO BE AN EXPRESSION HERE")
         is Entity -> t
@@ -125,7 +125,7 @@ fun startParsing(l: Lexer): Entity =
         else -> TODO("started parsing some cringe $t")
     }
 
-fun continueParsing(l: Lexer, currentEntity: Entity) =
+fun parseInfix(l: Lexer, currentEntity: Entity) =
     // TODO: what if the next token is something unrelated on a new line?
     when (val t = l.next()) {
         PlusToken -> (currentEntity as Expression<*>) Plus parseExpression(l)
