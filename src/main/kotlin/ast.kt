@@ -16,13 +16,6 @@ data class Module(val statements: List<Entity /*Statement*/>) : Entity {
 // The universe of tokens consists of singletons { keywords, operators, whitespace } and
 //  group values like Ints { 1, 2, 3 ... } and symbols { foo, bar ... }
 interface Token // SUS: i think tokens should be separated from entities
-object TrueLiteral : Expression<BooleanType>, Token {
-    override fun compile() = "true"
-}
-
-object FalseLiteral : Expression<BooleanType>, Token {
-    override fun compile() = "false"
-}
 
 object PlusToken : Token
 object Assign : Token
@@ -35,6 +28,8 @@ object LeftBracket : Token
 object RightBracket : Token
 object IfToken : Token
 object VarToken : Token
+object TrueToken : Token
+object FalseToken : Token
 data class IntLiteral(val value: Int) : Entity, Token {
     override fun compile() = value.toString()
 }
@@ -75,8 +70,9 @@ data class Container(override val name: String) : Expression<Type>, NamedEntity 
 }
 
 interface Expression<out T : Type> : Entity
-interface Literal<out T : Type> : Expression<T>
-
+data class Literal(val value: Any) : Expression<Type> {
+    override fun compile() = value.toString()
+}
 infix fun Expression<*>.Equals(rhs: Expression<*>) = Equals(this, rhs)
 data class Equals(val lhs: Expression<*>, val rhs: Expression<*>) : Expression<BooleanType> {
     override fun toString() = "$lhs Equals $rhs"

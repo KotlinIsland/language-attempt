@@ -1,11 +1,10 @@
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
 class MainTests {
     @Test
     fun `lex works`() = assertEquals(
-        listOf(VarToken, Container("a"), Assign, TrueLiteral),
+        listOf(VarToken, Container("a"), Assign, TrueToken),
         Lexer("var a = true").toList()
     )
 
@@ -13,7 +12,7 @@ class MainTests {
     @Test
     fun `parse works`() =
         assertEquals(
-            listOf(ContainerDeclaration(Container("a"), TrueLiteral)),
+            listOf(ContainerDeclaration(Container("a"), Literal(true))),
             parse(Lexer("var a = true"))
         )
 
@@ -21,13 +20,13 @@ class MainTests {
     fun `compile works`() =
         assertEquals(
             "let a = true",
-            ContainerDeclaration(Container("a"), TrueLiteral)
+            ContainerDeclaration(Container("a"), Literal(true))
                 .compile()
         )
 
     @Test
     fun `check works`() {
-        check(listOf(Container("a") Assignment TrueLiteral))
+        check(listOf(Container("a") Assignment Literal(true)))
     }
 
     @Test
@@ -36,8 +35,21 @@ class MainTests {
             listOf(CheckException("duplicate declaration a")),
             check(
                 listOf(
-                    ContainerDeclaration(Container("a"), TrueLiteral),
-                    ContainerDeclaration(Container("a"), TrueLiteral),
+                    ContainerDeclaration(Container("a"), Literal(true)),
+                    ContainerDeclaration(Container("a"), Literal(true)),
+                )
+            )
+        )
+    }
+
+    @Test
+    fun `check redundant value`() {
+        assertEquals(
+            listOf(CheckException("redundant value check a is always Literal(value=true)")),
+            check(
+                listOf(
+                    ContainerDeclaration(Container("a"), Literal(true)),
+                    IfStatement(Container("a") Equals Literal(true), Block(emptyList())),
                 )
             )
         )

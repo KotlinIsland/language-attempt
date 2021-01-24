@@ -29,21 +29,34 @@ fun Lexer.startParsing(): Entity =
         is Expression<*> -> if (hasNext()) parseInfix(t) else t
         is Container -> parseInfix(t)
         is Entity -> t
+        TrueToken -> parseInfix(Literal(true))
+        FalseToken -> parseInfix(Literal(false))
         VarToken -> parseContainerDeclaration()
         IfToken -> this.parseIf()
         else -> TODO("started parsing some cringe $t")
     }
 
-fun Lexer.parseInfix(currentEntity: Entity) =
+fun Lexer.parseInfix(currentEntity: Entity): Entity {
     // TODO: what if the next token is something unrelated on a new line?
-    when (val t = next()) {
+    return when (
+        val t = try {
+            next()
+        } catch (e: Exception) {
+            println(e)
+            return currentEntity
+        }
+    ) {
         PlusToken -> (currentEntity as Expression<*>) Plus parseExpression()
         Assign -> (currentEntity as Container) Assignment parseExpression()
         EqualsToken -> (currentEntity as Expression<*>) Equals parseExpression()
         LeftBrace, RightBrace -> currentEntity
         else -> TODO("continued parsing some cringe: $t, current: $currentEntity")
     }
+}
 
+/**
+ * Var Container [Assign Expression] NL
+ */
 fun Lexer.parseContainerDeclaration(): ContainerDeclaration {
     val c = next() as Container
     if (peek() != Assign) return ContainerDeclaration(c)

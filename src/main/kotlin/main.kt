@@ -22,18 +22,28 @@ fun check(l: List<Entity>): List<CheckException> {
     val scope = Scope()
     for (el in l) {
         if (el is ContainerDeclaration) {
-            if (el.container.name in scope.symbols)
+            // check redeclarations
+            if (el.container.name in scope.symbols.keys)
                 errors += CheckException("duplicate declaration ${el.container.name}")
-            scope.symbols += el.container.name
+            scope.symbols[el.container.name] = (el.value as Literal).value
+        }
+        // check redundant values
+        if (el is IfStatement) when (val ifEl = el.condition) {
+            is Equals -> {
+                if (scope.symbols[(ifEl.lhs as Container).name] == (ifEl.rhs as Literal).value) {
+                    errors += CheckException("redundant value check ${ifEl.lhs.name} is always ${ifEl.rhs}")
+                }
+            }
         }
     }
+
     return errors
 }
 
 data class CheckException(override val message: String) : Exception(message)
 
 class Scope {
-    val symbols = mutableListOf<String>()
+    val symbols = mutableMapOf<String, Any>()
 }
 //
 // class CallStack {
