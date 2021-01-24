@@ -23,7 +23,7 @@ fun Lexer.parseExpression() = startParsing() as Expression<*>
 
 fun Lexer.parseModule() = Module(map(::startParsing))
 
-fun Lexer.startParsing(t: Token = next()): Entity = when(t) {
+fun Lexer.startParsing(t: Token = next()): Entity = when (t) {
     is Expression<*> -> parseIfHasNext(t, ::parseInfix)
     is Container -> parseInfix(t)
     is Entity -> t
