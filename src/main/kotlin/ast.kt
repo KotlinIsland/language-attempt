@@ -113,7 +113,7 @@ fun parseModule(l: Lexer) = Module(/*eww*/buildList { while (l.hasNext()) add(st
 
 fun startParsing(l: Lexer): Entity =
     when (val t = l.next()) {
-        is Expression<*>, is Container -> continueParsing(l, t as Entity)
+        is Expression<*>, is Container -> if (l.hasNext()) continueParsing(l, t as Entity) else t as Entity
         is Entity -> t
         VarToken -> parseContainerDeclaration(l)
         IfToken -> parseIf(l)
