@@ -1,5 +1,6 @@
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class MainTests {
     @Test
@@ -27,6 +28,19 @@ class MainTests {
     @Test
     fun `check works`() {
         check(listOf(Container("a") Assignment TrueLiteral))
+    }
+
+    @Test
+    fun `check for duplicate declaration`() {
+        assertEquals(
+            listOf(CheckException("duplicate declaration a")),
+            check(
+                listOf(
+                    ContainerDeclaration(Container("a"), TrueLiteral),
+                    ContainerDeclaration(Container("a"), TrueLiteral),
+                )
+            )
+        )
     }
 
     @Test

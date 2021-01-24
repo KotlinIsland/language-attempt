@@ -16,16 +16,25 @@ fun compile(es: List<Entity>) = es.joinToString("\n") { it.compile() }
 
 /**
  * Checks the parsed code is valid.
- *
- * CompilerVariable(name="a", staticType=BooleanType, valueType=BooleanType, value=BooleanType(true))
  */
-fun check(l: List<Entity>): List<Error> {
-    return listOf()
+fun check(l: List<Entity>): List<CheckException> {
+    val errors = mutableListOf<CheckException>()
+    val scope = Scope()
+    for (el in l) {
+        if (el is ContainerDeclaration) {
+            if (el.container.name in scope.symbols)
+                errors += CheckException("duplicate declaration ${el.container.name}")
+            scope.symbols += el.container.name
+        }
+    }
+    return errors
 }
-class CheckException : Exception()
-// class Scope {
-//    val things = mutableMapOf<String, Any>()
-// }
+
+data class CheckException(override val message: String) : Exception(message)
+
+class Scope {
+    val symbols = mutableListOf<String>()
+}
 //
 // class CallStack {
 //    val scopes = mutableListOf(Scope())
