@@ -36,7 +36,7 @@ fun Lexer.startParsing(t: Token = next()): Entity = when (t) {
 }
 
 fun Lexer.parseInfix(currentEntity: Entity): Entity {
-    // TODO: what if the next token is something unrelated on a new line?
+    gobbleNewlines()
     return when (
         val t = try {
             next()
@@ -49,7 +49,8 @@ fun Lexer.parseInfix(currentEntity: Entity): Entity {
         Assign -> (currentEntity as Container) Assignment parseExpression()
         EqualsToken -> (currentEntity as Expression<*>) Equals parseExpression()
         NotEqualsToken -> (currentEntity as Expression<*>) NotEquals parseExpression()
-        LeftBrace, RightBrace, NewlineToken -> currentEntity // theres no infix to parse
+        LeftBrace, RightBrace -> currentEntity // theres no infix to parse
+        NewlineToken -> error("impossibru!!!!!!!!!! newline token appeared after being gobbled???")
         else -> TODO("continued parsing some cringe: $t, current: $currentEntity")
     }
 }

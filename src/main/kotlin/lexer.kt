@@ -32,9 +32,14 @@ private data class LexerPosition(val index: Int, val token: Token)
  */
 class Lexer(val s: String) : Iterable<Token> {
     var pos = 0
+    lateinit var current: Token
+
     fun peek(): Token = nextPosition().token
 
-    fun next(): Token = nextPosition().also { pos = it.index + 1 }.token
+    fun next(): Token = nextPosition().also {
+        pos = it.index + 1
+        current = it.token
+    }.token
 
     private fun nextPosition() = try {
         val index = s.indexOfAny(charArrayOf(' '), pos + 1).takeIf { it != -1 } ?: s.length
@@ -75,4 +80,10 @@ class Lexer(val s: String) : Iterable<Token> {
     }
 
     operator fun Regex.contains(s: String) = this matches s
+
+    fun gobbleNewlines(): Token {
+        while (current is NewlineToken)
+            next()
+        return current
+    }
 }
