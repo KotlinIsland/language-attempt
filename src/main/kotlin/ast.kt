@@ -28,7 +28,7 @@ object PlusToken : Token
 object Assign : Token
 object EqualsToken : Token
 object IfToken : Token
-object Var : Token
+object VarToken : Token
 data class IntLiteral(val value: Int) : Entity, Token {
     override fun compile() = value.toString()
 }
@@ -52,6 +52,10 @@ data class Plus<R : Type>(val lhs: Expression<*>, val rhs: Expression<*>) : Expr
 
 data class Function(override val name: String /*params, code*/): NamedEntity {
     override fun compile() = "fun $name() { }"
+}
+
+data class ContainerDeclaration(val container: Container, val value: Expression<*>? = null) : Entity {
+    override fun compile() = "let ${container.compile()}" + if (value != null) " = " + value.compile() else ""
 }
 
 // constructor
@@ -96,7 +100,6 @@ fun parseBlock(l: Lexer): Block {
  * If Expression Block
  */
 fun parseIf(l: Lexer) =
-    // CRINGE(how do we know this is the right type?)
      IfStatement(startParsing(l) as Expression<BooleanType>, parseBlock(l))
 
 /**
@@ -110,35 +113,27 @@ fun parseModule(l: Lexer) = Module(/*eww*/buildList { while (l.hasNext()) add(st
 
 fun startParsing(l: Lexer): Entity =
     when (val t = l.next()) {
+        is Expression<*>, is Container -> continueParsing(l, t as Entity)
         is Entity -> t
-        TrueLiteral -> continueParsing(l, TrueLiteral)
+        VarToken -> parseContainerDeclaration(l)
         IfToken -> parseIf(l)
         else -> TODO("started parsing some cringe $t")
     }
 
 fun continueParsing(l: Lexer, currentEntity: Entity) =
+    // TODO: what if the next token is something unrelated on a new line?
     when (val t = l.next()) {
         PlusToken -> (currentEntity as Expression<*>) Plus parseExpression(l)
-        Assign -> parseAssignment(l, currentEntity as Container)
+        Assign -> (currentEntity as Container) Assignment parseExpression(l)
         EqualsToken -> (currentEntity as Expression<*>) Equals parseExpression(l)
         else -> TODO("continues parsing some cringe $t")
     }
 
-fun parseContainer(l: Lexer, currentExpression: Container): Assignment {
-    val op = l.next()
-    check(op is Assign /* or dot or plus ..., maybe make this property an interface*/)
-    return currentExpression Assignment parseExpression(l)
+fun parseContainerDeclaration(l: Lexer): ContainerDeclaration {
+    val c = l.next() as Container
+    if (l.peek() != Assign) return ContainerDeclaration(c)
+    l.next() // Assign
+    return ContainerDeclaration(c, parseExpression(l))
 }
 
-/**
- * Var Container [Equals, Expression] NL
- */
-fun parseAssignment(l: Lexer, currentExpression: Container) =
-    currentExpression Assignment parseExpression(l)
-
 class CompilerVariable(val name: String, val staticType: KClass<Type>, var valueType: KClass<Type>, var value: Type)
-
-// var a = 1
-val a = 1
-infix fun Int.a(other: (Int)-> Unit) {}
-

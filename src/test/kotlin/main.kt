@@ -8,7 +8,7 @@ class MainTests {
     @ExperimentalStdlibApi
     @Test
     fun `parse works`() =
-        assertEquals(listOf(Container("a") Assignment TrueLiteral), parseModule(Lexer("a = true")).statements)
+        assertEquals(listOf(ContainerDeclaration(Container("a"), TrueLiteral)), parseModule(Lexer("var a = true")).statements)
 
     @Test
     fun `compile works`() {
