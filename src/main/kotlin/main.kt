@@ -9,23 +9,20 @@ fun parse(l: Lexer): List<Entity> {
     return result
 }
 
-
 /**
  * turns `[Assignment(Container(name="a"), BooleanTrue)]` into """var a = true"""
  */
-fun compile(l: Lexer): String {
-    TODO("LOOL!")
-}
+fun compile(es: List<Entity>) = es.joinToString("\n") { it.compile() }
 
 /**
  * Checks the parsed code is valid.
  *
- * How does this link back to where the error is in source?
- *
  * CompilerVariable(name="a", staticType=BooleanType, valueType=BooleanType, value=BooleanType(true))
  */
-fun check(l: List<*>): List<Error> = TODO("impl check")
-
+fun check(l: List<Entity>): List<Error> {
+    return listOf()
+}
+class CheckException : Exception()
 //class Scope {
 //    val things = mutableMapOf<String, Any>()
 //}

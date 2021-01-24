@@ -6,6 +6,4 @@
     Solution: ckecking the type is for later in the compile process
 
 1. `/*eww*/buildList { while (l.hasNext()) add(startParsing(l)) }`
-1. type checker
-1. type tracker
-1. value tracker  
+1. compile/parse/check functions all deal with List<Entity> not a Module

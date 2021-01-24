@@ -1,5 +1,6 @@
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class MainTests {
     @Test
@@ -13,7 +14,7 @@ class MainTests {
     fun `parse works`() =
         assertEquals(
             listOf(ContainerDeclaration(Container("a"), TrueLiteral)),
-            Lexer("var a = true").parseModule().statements
+            parse(Lexer("var a = true"))
         )
 
     @Test
@@ -31,16 +32,16 @@ class MainTests {
 
 
     @Test
-    fun `end to end`() =
+    fun `e2e ContainerDeclaration`() =
         assertEquals(
             "let a = true",
-            parse(Lexer("var a = true")).joinToString("\n") { it.compile() }
+            compile(parse(Lexer("var a = true")))
         )
 
     @Test
-    fun `e2e if statement`() =
+    fun `e2e IfStatement`() =
         assertEquals(
             "if(a === true) {}",
-            parse(Lexer("if a == true { }")).joinToString("\n") { it.compile() }
+            compile(parse(Lexer("if a == true { }")))
         )
 }

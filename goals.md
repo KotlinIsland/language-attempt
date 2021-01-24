@@ -4,6 +4,9 @@
    var a = true
    if (a == false) { }
    ```
+1. type checker
+1. type tracker
+1. value tracker
    ### longer goals 
 1. ```kt
    class Foo {
