@@ -1,13 +1,19 @@
 /**
  * turns `Lexer returning ... ["a", "=", "true"]` into `[Assignment(Container(name="a"), BooleanTrue)]`
  */
-fun parse(l: Lexer): List<*> = TODO("Figure out where this stands in the parse tree")
+fun parse(l: Lexer): List<Entity> {
+    val result = mutableListOf<Entity>()
+    while (l.hasNext()) {
+        result.add(startParsing(l))
+    }
+    return result
+}
 
 
 /**
  * turns `[Assignment(Container(name="a"), BooleanTrue)]` into """var a = true"""
  */
-fun compile(entity: Entity): String {
+fun compile(l: Lexer): String {
     TODO("LOOL!")
 }
 

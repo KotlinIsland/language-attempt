@@ -3,9 +3,10 @@
  */
 fun parseBlock(l: Lexer): Block {
     val entries = ArrayList<Entity>()
-    while (l.hasNext()) {
+    while (l.peek() != RightBrace) {
         entries += startParsing(l)
     }
+    l.next() // RightBrace
     return Block(entries)
 }
 
