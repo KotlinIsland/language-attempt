@@ -13,7 +13,7 @@ class MainTests {
     fun `parse works`() =
         assertEquals(
             listOf(ContainerDeclaration(Container("a"), TrueLiteral)),
-            parseModule(Lexer("var a = true")).statements
+            Lexer("var a = true").parseModule().statements
         )
 
     @Test

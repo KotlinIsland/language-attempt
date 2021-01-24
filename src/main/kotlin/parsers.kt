@@ -1,52 +1,52 @@
 /**
  * { Entity* }
  */
-fun parseBlock(l: Lexer): Block {
+fun Lexer.parseBlock(): Block {
     val entries = ArrayList<Entity>()
-    while (l.peek() != RightBrace) {
-        entries += startParsing(l)
+    while (peek() != RightBrace) {
+        entries += startParsing()
     }
-    l.next() // RightBrace
+    next() // RightBrace
     return Block(entries)
 }
 
 /**
  * If Expression Block
  */
-fun parseIf(l: Lexer) =
-    IfStatement(startParsing(l) as Expression<BooleanType>, parseBlock(l))
+fun Lexer.parseIf() =
+    IfStatement(startParsing() as Expression<BooleanType>, parseBlock())
 
 /**
  * Expression:
  * 1 [(WS+, Infix, Dot) Expression]
  */
-fun parseExpression(l: Lexer) = startParsing(l) as Expression<*>
+fun Lexer.parseExpression() = startParsing() as Expression<*>
 
 @ExperimentalStdlibApi
-fun parseModule(l: Lexer) = Module(/*eww*/buildList { while (l.hasNext()) add(startParsing(l)) })
+fun Lexer.parseModule() = Module(/*eww*/buildList { while (hasNext()) add(startParsing()) })
 
-fun startParsing(l: Lexer): Entity =
-    when (val t = l.next()) {
-        is Expression<*> -> if (l.hasNext()) parseInfix(l, t) else t
-        is Container -> parseInfix(l, t)
+fun Lexer.startParsing(): Entity =
+    when (val t = next()) {
+        is Expression<*> -> if (hasNext()) parseInfix(t) else t
+        is Container -> parseInfix(t)
         is Entity -> t
-        VarToken -> parseContainerDeclaration(l)
-        IfToken -> parseIf(l)
+        VarToken -> parseContainerDeclaration()
+        IfToken -> this.parseIf()
         else -> TODO("started parsing some cringe $t")
     }
 
-fun parseInfix(l: Lexer, currentEntity: Entity) =
+fun Lexer.parseInfix(currentEntity: Entity) =
     // TODO: what if the next token is something unrelated on a new line?
-    when (val t = l.next()) {
-        PlusToken -> (currentEntity as Expression<*>) Plus parseExpression(l)
-        Assign -> (currentEntity as Container) Assignment parseExpression(l)
-        EqualsToken -> (currentEntity as Expression<*>) Equals parseExpression(l)
+    when (val t = next()) {
+        PlusToken -> (currentEntity as Expression<*>) Plus parseExpression()
+        Assign -> (currentEntity as Container) Assignment parseExpression()
+        EqualsToken -> (currentEntity as Expression<*>) Equals parseExpression()
         else -> TODO("continued parsing some cringe: $t, current: $currentEntity")
     }
 
-fun parseContainerDeclaration(l: Lexer): ContainerDeclaration {
-    val c = l.next() as Container
-    if (l.peek() != Assign) return ContainerDeclaration(c)
-    l.next() // Assign
-    return ContainerDeclaration(c, parseExpression(l))
+fun Lexer.parseContainerDeclaration(): ContainerDeclaration {
+    val c = next() as Container
+    if (peek() != Assign) return ContainerDeclaration(c)
+    next() // Assign
+    return ContainerDeclaration(c, parseExpression())
 }

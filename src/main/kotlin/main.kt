@@ -4,7 +4,7 @@
 fun parse(l: Lexer): List<Entity> {
     val result = mutableListOf<Entity>()
     while (l.hasNext()) {
-        result.add(startParsing(l))
+        result.add(l.startParsing())
     }
     return result
 }
