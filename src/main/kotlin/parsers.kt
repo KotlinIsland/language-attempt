@@ -14,7 +14,8 @@ fun Lexer.parseBlock(): Block {
  * If Expression Block
  */
 fun Lexer.parseIf() =
-    IfStatement(startParsing() as Expression<BooleanType>, parseBlock())
+    // TODO: maybe Expression needs to have a property specifying its return type so the generic doesnt get deleted at runtime
+    IfStatement(parseExpression() as Expression<BooleanType>, parseBlock())
 
 /**
  * Expression [(WS+, Infix, Dot) Expression]
@@ -24,13 +25,13 @@ fun Lexer.parseExpression() = startParsing() as Expression<*>
 fun Lexer.parseModule() = Module(map(::startParsing))
 
 fun Lexer.startParsing(t: Token = next()): Entity = when (t) {
-    is Expression<*> -> parseIfHasNext(t, ::parseInfix)
-    is Container -> parseInfix(t)
-    is Entity -> t
     TrueToken -> parseInfix(Literal(true))
     FalseToken -> parseInfix(Literal(false))
+    // sus: these are literals as well, why dont they also use Literal?
+    is ContainerToken -> parseInfix(Container(t.name))
+    is IntLiteralToken -> parseInfix(Literal(t.value))
     VarToken -> parseContainerDeclaration()
-    IfToken -> this.parseIf()
+    IfToken -> parseIf()
     else -> TODO("started parsing some cringe $t")
 }
 
@@ -57,8 +58,8 @@ fun Lexer.parseInfix(currentEntity: Entity): Entity {
  * Var Container [Assign Expression] NL
  */
 fun Lexer.parseContainerDeclaration(): ContainerDeclaration {
-    val c = next() as Container
-    if (peek() != Assign) return ContainerDeclaration(c)
+    val c = Container((next() as ContainerToken).name)
+    if (peek() != Assign) return ContainerDeclaration(Container(c.name))
     next() // Assign
     return ContainerDeclaration(c, parseExpression())
 }

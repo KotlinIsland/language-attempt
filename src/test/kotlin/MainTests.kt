@@ -4,7 +4,7 @@ import kotlin.test.assertEquals
 class MainTests {
     @Test
     fun `lex works`() = assertEquals(
-        listOf(VarToken, Container("a"), Assign, TrueToken),
+        listOf(VarToken, ContainerToken("a"), Assign, TrueToken),
         Lexer("var a = true").toList()
     )
 

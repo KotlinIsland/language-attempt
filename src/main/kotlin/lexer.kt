@@ -1,4 +1,28 @@
-// TODO: put tokens here (theyre currently coupled with expressions)
+// Tokens
+// The universe of tokens consists of singletons { keywords, operators, whitespace } and
+//  group values like Ints { 1, 2, 3 ... } and symbols { foo, bar ... }
+interface Token
+
+interface InfixToken : Token
+
+object PlusToken : Token, InfixToken
+object Assign : Token
+object LeftBrace : Token
+object RightBrace : Token
+object EqualsToken : Token, InfixToken
+object NotEqualsToken : Token
+object LeftParenthesis : Token
+object RightParenthesis : Token
+object LeftBracket : Token
+object RightBracket : Token
+object IfToken : Token
+object VarToken : Token
+object TrueToken : Token
+object FalseToken : Token
+object NewlineToken : Token
+
+data class IntLiteralToken(val value: Int) : Token
+data class ContainerToken(val name: String) : Token
 
 private data class LexerPosition(val index: Int, val token: Token)
 
@@ -28,7 +52,7 @@ class Lexer(val s: String) : Iterable<Token> {
         override fun next() = this@Lexer.next()
     }
 
-    fun String.toToken() = when (this) {
+    fun String.toToken(): Token = when (this) {
         "var" -> VarToken
         "true" -> TrueToken
         "false" -> FalseToken
@@ -44,9 +68,9 @@ class Lexer(val s: String) : Iterable<Token> {
         "{" -> LeftBrace
         "}" -> RightBrace
         in Regex("\n+") -> NewlineToken
-        in Regex("\\d+") -> Literal(toInt())
+        in Regex("\\d+") -> IntLiteralToken(toInt())
         // in Regex("_+") -> UnderscoreEntity
-        in Regex("(?i)[a-z_]\\w*") -> Container(this /*place holder?*/)
+        in Regex("(?i)[a-z_]\\w*") -> ContainerToken(this /*place holder?*/)
         else -> TODO("huh?")
     }
 

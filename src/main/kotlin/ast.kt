@@ -12,32 +12,9 @@ data class Module(val statements: List<Entity /*Module Entity*/>) : Entity {
     override fun compile() = statements.joinToString("\n") { it.compile() }
 }
 
-// Tokens
-// The universe of tokens consists of singletons { keywords, operators, whitespace } and
-//  group values like Ints { 1, 2, 3 ... } and symbols { foo, bar ... }
-interface Token // SUS: i think tokens should be separated from entities
-
-interface InfixToken : Token
-
-object PlusToken : Token, InfixToken
-object Assign : Token
-object LeftBrace : Token
-object RightBrace : Token
-object EqualsToken : Token, InfixToken
-object NotEqualsToken : Token
-object LeftParenthesis : Token
-object RightParenthesis : Token
-object LeftBracket : Token
-object RightBracket : Token
-object IfToken : Token
-object VarToken : Token
-object TrueToken : Token
-object FalseToken : Token
-object NewlineToken : Token
-
 // NamedEntity
 // alphanumeric | underscore, can't be just underscores, can't start with a number
-interface NamedEntity : Entity, Token {
+interface NamedEntity : Entity {
     val name: String
 }
 
