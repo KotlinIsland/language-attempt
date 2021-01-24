@@ -17,11 +17,13 @@ data class Module(val statements: List<Entity /*Module Entity*/>) : Entity {
 //  group values like Ints { 1, 2, 3 ... } and symbols { foo, bar ... }
 interface Token // SUS: i think tokens should be separated from entities
 
-object PlusToken : Token
+interface InfixToken : Token
+
+object PlusToken : Token, InfixToken
 object Assign : Token
 object LeftBrace : Token
 object RightBrace : Token
-object EqualsToken : Token
+object EqualsToken : Token, InfixToken
 object NotEqualsToken : Token
 object LeftParenthesis : Token
 object RightParenthesis : Token
@@ -31,6 +33,7 @@ object IfToken : Token
 object VarToken : Token
 object TrueToken : Token
 object FalseToken : Token
+object NewlineToken : Token
 
 // NamedEntity
 // alphanumeric | underscore, can't be just underscores, can't start with a number
