@@ -1,0 +1,11 @@
+name: test
+on:
+  - push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: gradle tests
+        uses: OrangeLabs-moe/gradle-actions@v5.0-openjdk-14
