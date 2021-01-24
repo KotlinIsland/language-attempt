@@ -50,7 +50,7 @@ data class Plus<R : Type>(val lhs: Expression<*>, val rhs: Expression<*>) : Expr
     override fun compile() = lhs.compile() + " + " + rhs.compile()
 }
 
-data class Function(override val name: String /*params, code*/): NamedEntity {
+data class Function(override val name: String /*params, code*/) : NamedEntity {
     override fun compile() = "fun $name() { }"
 }
 
@@ -77,7 +77,7 @@ data class Equals(val lhs: Expression<*>, val rhs: Expression<*>) : Expression<B
     override fun compile() = "${lhs.compile()} === ${rhs.compile()}"
 }
 
-class Block(val body: List<Entity>) : Entity  {
+class Block(val body: List<Entity>) : Entity {
     override fun compile() = body.joinToString("\n") { it.compile() }
 }
 
@@ -100,7 +100,7 @@ fun parseBlock(l: Lexer): Block {
  * If Expression Block
  */
 fun parseIf(l: Lexer) =
-     IfStatement(startParsing(l) as Expression<BooleanType>, parseBlock(l))
+    IfStatement(startParsing(l) as Expression<BooleanType>, parseBlock(l))
 
 /**
  * Expression:
@@ -114,10 +114,11 @@ fun parseModule(l: Lexer) = Module(/*eww*/buildList { while (l.hasNext()) add(st
 fun startParsing(l: Lexer): Entity =
     when (val t = l.next()) {
         is Expression<*> -> if (l.hasNext()) continueParsing(l, t) else t
-        is Container -> if (l.hasNext())
-            continueParsing(l, t)
-        else
-            error("FAIL!!!! THERE NEEDS TO BE AN EXPRESSION HERE")
+        is Container ->
+            if (l.hasNext())
+                continueParsing(l, t)
+            else
+                error("FAIL!!!! THERE NEEDS TO BE AN EXPRESSION HERE")
         is Entity -> t
         VarToken -> parseContainerDeclaration(l)
         IfToken -> parseIf(l)
