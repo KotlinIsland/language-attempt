@@ -13,5 +13,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: JetBrains/qodana-action@v1.0-eap
-      with:
-        project-dir: /
+        with:
+          project-dir: /
