@@ -1,0 +1,17 @@
+name: check
+on:
+  - push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: gradle checks
+        uses: OrangeLabs-moe/gradle-actions@v5.0-openjdk-14
+  inspections:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: JetBrains/qodana-action@v1.0-eap
+        with:
+          project-dir: /
