@@ -41,8 +41,17 @@ class Lexer(val s: String) : Iterable<Token> {
         current = it.token
     }.token
 
+    /**
+     * the start of the next token "a{90)asf.foo 1"
+     */
     private fun nextPosition() = try {
-        val index = s.indexOfAny(charArrayOf(' '), pos + 1).takeIf { it != -1 } ?: s.length
+        var index: Int = pos
+        var char: Char
+        while (true) {
+            char = s[index++]
+            // if this char is a multichar token like '!=' it needs more logic
+            if (char !in 'a'..'Z' && char != '_' && char !in '0'..'9' && char != ' ') break
+        }
         LexerPosition(index, s.substring(pos, index).toToken())
     } catch (t: Throwable) {
         throw Exception("tried to read past end of file")
