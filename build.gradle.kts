@@ -1,26 +1,28 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.4.30-RC"
+    kotlin("jvm") version "1.4.30"
     application
-    id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
+    id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
 }
-group = "me.user"
-version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
-    jcenter()
-    maven("https://dl.bintray.com/kotlin/kotlin-eap")
-    maven("https://dl.bintray.com/kotlin/kotlin-dev")
-}
-dependencies {
-    testImplementation(kotlin("test-junit"))
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.useIR = true
+dependencies {
+    testImplementation(kotlin("test-junit5"))
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.1")
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.kotlinOptions {
+    jvmTarget = "1.8"
+    useIR = true
 }
 
 application {
