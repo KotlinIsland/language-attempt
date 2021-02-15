@@ -1,4 +1,5 @@
 name: check
+
 on:
   - push
 
@@ -12,6 +13,7 @@ jobs:
   inspections:
     runs-on: ubuntu-latest
     steps:
-      - uses: JetBrains/qodana-action@v1.0-eap
-      with:
-        project-dir: /
+      - uses: actions/checkout@v2
+      - name: Qodana - Code Inspection
+        uses: JetBrains/qodana-action@v1.0-eap
+
