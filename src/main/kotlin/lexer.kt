@@ -24,7 +24,7 @@ object NewlineToken : Token
 data class IntLiteralToken(val value: Int) : Token
 data class ContainerToken(val name: String) : Token
 
-private data class LexerPosition(val index: Int, val token: Token)
+data class LexerPosition(val index: Int, val token: Token, val length: Int)
 
 /**
  * turns "a = true" into `["a", "=", "true"]`
@@ -32,27 +32,32 @@ private data class LexerPosition(val index: Int, val token: Token)
  */
 class Lexer(val s: String) : Iterable<Token> {
     var pos = 0
-    lateinit var current: Token
+    lateinit var current: LexerPosition
 
     fun peek(): Token = nextPosition().token
 
     fun next(): Token = nextPosition().also {
         pos = it.index + 1
-        current = it.token
+        current = it
     }.token
 
+    /**
+     * solution is to use [toTOken] logic to determine if
+     * if matcher is a string then use it literally
+     * if matcher is a Regex then regex match it obv.
+     */
     /**
      * the start of the next token "a{90)asf.foo 1"
      */
     private fun nextPosition() = try {
-        var index: Int = pos
-        var char: Char
-        while (true) {
-            char = s[index++]
-            // if this char is a multichar token like '!=' it needs more logic
-            if (char !in 'a'..'Z' && char != '_' && char !in '0'..'9' && char != ' ') break
-        }
-        LexerPosition(index, s.substring(pos, index).toToken())
+        // get the position directly after the current token
+        val indexBeforeWhitespace = pos + current.length
+        // skip over any spaces/newlines
+        val indexAfterWhitespace = indexBeforeWhitespace + Regex("^[\n ]*").find(s, indexBeforeWhitespace)!!.value.length
+        val `things that don't break tokens` = setOf("a-z", "0-9", "_")
+        val `long tokens that look funny` = setOf("!=", "==", "!==", "===")
+        val tokenString = s.substring(indexAfterWhitespace, Regex("^[\n ]*").find(s))
+        LexerPosition(indexAfterWhitespace, tokenString.toToken(), tokenString.length)
     } catch (t: Throwable) {
         throw Exception("tried to read past end of file")
     }
@@ -89,10 +94,4 @@ class Lexer(val s: String) : Iterable<Token> {
     }
 
     operator fun Regex.contains(s: String) = this matches s
-
-    fun gobbleNewlines(): Token {
-        while (current is NewlineToken)
-            next()
-        return current
-    }
 }

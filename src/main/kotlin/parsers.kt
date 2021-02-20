@@ -36,7 +36,6 @@ fun Lexer.startParsing(t: Token = next()): Entity = when (t) {
 }
 
 fun Lexer.parseInfix(currentEntity: Entity): Entity {
-    gobbleNewlines()
     return when (
         val t = try {
             next()
