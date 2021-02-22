@@ -4,7 +4,7 @@ import kotlin.test.assertEquals
 class MainTests {
     @Test
     fun `lex works`() = assertEquals(
-        listOf(VarToken, ContainerToken("a"), Assign, TrueToken),
+        listOf(VarToken, ContainerToken("a"), Assign, TrueToken, EOF),
         Lexer("var a = true").toList()
     )
 
@@ -18,7 +18,7 @@ class MainTests {
     @Test
     fun `parse module`() =
         assertEquals(
-            Module(listOf(ContainerDeclaration(Container("a")))),
+            Module(listOf(ContainerDeclaration(Container("a")), EOFEntity)),
             Lexer("var a").parseModule()
         )
 
@@ -43,19 +43,6 @@ class MainTests {
                 listOf(
                     ContainerDeclaration(Container("a"), Literal(true)),
                     ContainerDeclaration(Container("a"), Literal(true)),
-                )
-            )
-        )
-    }
-
-    @Test
-    fun `check redundant value`() {
-        assertEquals(
-            listOf(CheckException("redundant value check a is always Literal(value=true)")),
-            check(
-                listOf(
-                    ContainerDeclaration(Container("a"), Literal(true)),
-                    IfStatement(Container("a") Equals Literal(true), Block(emptyList())),
                 )
             )
         )

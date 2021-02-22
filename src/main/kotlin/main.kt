@@ -12,7 +12,7 @@ fun parse(l: Lexer): List<Entity> {
 /**
  * turns `[Assignment(Container(name="a"), BooleanTrue)]` into """var a = true"""
  */
-fun compile(es: List<Entity>) = es.joinToString("\n") { it.compile() }
+fun compile(es: List<Entity>) = es.joinToString("\n") { it.compile() }.trim()
 
 /**
  * Checks the parsed code is valid.

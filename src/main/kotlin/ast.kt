@@ -7,7 +7,9 @@ interface Entity {
 }
 
 interface ModuleLevelEntity
-
+object EOFEntity : Entity {
+    override fun compile() = ""
+}
 data class Module(val statements: List<Entity /*Module Entity*/>) : Entity {
     override fun compile() = statements.joinToString("\n") { it.compile() }
 }
