@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.4.30"
+    kotlin("jvm") version "1.5.0-M1"
     application
     id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
 }
@@ -19,10 +19,10 @@ tasks.test {
     useJUnitPlatform()
 }
 
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions {
-    jvmTarget = "1.8"
-    useIR = true
+tasks.withType(KotlinCompile::class) {
+    kotlinOptions {
+        jvmTarget = "11"
+    }
 }
 
 application {
