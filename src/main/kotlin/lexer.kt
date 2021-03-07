@@ -1,3 +1,5 @@
+import org.intellij.lang.annotations.Language
+
 // Tokens
 // The universe of tokens consists of singletons { keywords, operators, whitespace } and
 //  group values like Ints { 1, 2, 3 ... } and symbols { foo, bar ... }
@@ -5,6 +7,7 @@ interface Token
 
 interface InfixToken : Token
 
+// TODO: give tokens their pattern here
 object PlusToken : Token, InfixToken
 object Assign : Token
 object LeftBrace : Token
@@ -20,11 +23,12 @@ object VarToken : Token
 object TrueToken : Token
 object FalseToken : Token
 object NewlineToken : Token
+object EOF : Token
 
 data class IntLiteralToken(val value: Int) : Token
 data class ContainerToken(val name: String) : Token
 
-private data class LexerPosition(val index: Int, val token: Token)
+data class LexerPosition(val index: Int, val token: Token, val length: Int)
 
 /**
  * turns "a = true" into `["a", "=", "true"]`
@@ -32,29 +36,28 @@ private data class LexerPosition(val index: Int, val token: Token)
  */
 class Lexer(val s: String) : Iterable<Token> {
     var pos = 0
-    lateinit var current: Token
+    lateinit var current: LexerPosition
 
     fun peek(): Token = nextPosition().token
 
     fun next(): Token = nextPosition().also {
-        pos = it.index + 1
-        current = it.token
+        pos = it.index
+        current = it
     }.token
 
-    /**
-     * the start of the next token "a{90)asf.foo 1"
-     */
     private fun nextPosition() = try {
-        var index: Int = pos
-        var char: Char
-        while (true) {
-            char = s[index++]
-            // if this char is a multichar token like '!=' it needs more logic
-            if (char !in 'a'..'Z' && char != '_' && char !in '0'..'9' && char != ' ') break
+        // get the position directly after the current token
+        val indexBeforeWhitespace = if (this::current.isInitialized) pos + current.length else 0
+        // skip over any spaces/newlines
+        val indexAfterWhitespace = indexBeforeWhitespace + Regex("^[\n ]*").find(s.substring(indexBeforeWhitespace))!!.value.length
+        val stringFromStartOfNextToken = s.substring(indexAfterWhitespace)
+        if (stringFromStartOfNextToken.isEmpty()) LexerPosition(indexAfterWhitespace, EOF, 0)
+        else {
+            val (token, length) = stringFromStartOfNextToken.toToken()
+            LexerPosition(indexAfterWhitespace, token, length)
         }
-        LexerPosition(index, s.substring(pos, index).toToken())
-    } catch (t: Throwable) {
-        throw Exception("tried to read past end of file")
+    } catch (t: Throwable) { // TODO get correct type of exception here
+        throw Exception("Tried to read past end of file $t")
     }
 
     fun hasNext() = pos < s.length
@@ -65,34 +68,32 @@ class Lexer(val s: String) : Iterable<Token> {
         override fun hasNext() = pos < s.length
         override fun next() = this@Lexer.next()
     }
-
-    fun String.toToken(): Token = when (this) {
-        "var" -> VarToken
-        "true" -> TrueToken
-        "false" -> FalseToken
-        "if" -> IfToken
-        "=" -> Assign
-        "==" -> EqualsToken
-        "!=" -> NotEqualsToken
-        "+" -> PlusToken
-        "(" -> LeftParenthesis
-        ")" -> RightParenthesis
-        "[" -> LeftBracket
-        "]" -> RightBracket
-        "{" -> LeftBrace
-        "}" -> RightBrace
-        in Regex("\n+") -> NewlineToken
-        in Regex("\\d+") -> IntLiteralToken(toInt())
-        // in Regex("_+") -> UnderscoreEntity
-        in Regex("(?i)[a-z_]\\w*") -> ContainerToken(this /*place holder?*/)
-        else -> TODO("huh?")
+    @Suppress("NOTHING_TO_INLINE")
+    inline fun String.startsWith1(pre: Regex) = pre.containsMatchIn(this)
+    @Suppress("NOTHING_TO_INLINE")
+    inline fun String.startsWith1(@Language("REGEXP") pre: String) = startsWith1(Regex1(pre))
+    @Suppress("NOTHING_TO_INLINE")
+    inline fun Regex1(@Language("REGEXP") blah: String) = Regex("^$blah")
+    fun String.toToken(): Pair<Token, Int> = when {
+        startsWith1("var\\b") -> VarToken to 3
+        startsWith1("true\\b") -> TrueToken to 4
+        startsWith1("false\\b") -> FalseToken to 5
+        startsWith1("if\\b") -> IfToken to 2
+        startsWith1("==") -> EqualsToken to 2
+        startsWith1("=") -> Assign to 1
+        startsWith1("!=") -> NotEqualsToken to 2
+        startsWith1("\\+") -> PlusToken to 1
+        startsWith1("\\(") -> LeftParenthesis to 1
+        startsWith1("\\)") -> RightParenthesis to 1
+        startsWith1("\\[") -> LeftBracket to 1
+        startsWith1("]") -> RightBracket to 1
+        startsWith1("\\{") -> LeftBrace to 1
+        startsWith1("}") -> RightBrace to 1
+        startsWith1(Regex1("\n+")) -> NewlineToken to 1 // HACK
+        startsWith1("\\d+") -> Regex("\\w+").find(this)!!.value.let { IntLiteralToken(it.toInt()) to it.length }
+        startsWith1("(?i)[a-z_]\\w*") -> Regex("\\w+").find(this)!!.value.let { ContainerToken(it) to it.length }
+        else -> error("lexed something wacky '$this'")
     }
 
     operator fun Regex.contains(s: String) = this matches s
-
-    fun gobbleNewlines(): Token {
-        while (current is NewlineToken)
-            next()
-        return current
-    }
 }

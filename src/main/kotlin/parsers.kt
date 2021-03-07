@@ -32,11 +32,11 @@ fun Lexer.startParsing(t: Token = next()): Entity = when (t) {
     is IntLiteralToken -> parseInfix(Literal(t.value))
     VarToken -> parseContainerDeclaration()
     IfToken -> parseIf()
-    else -> TODO("started parsing some cringe $t")
+    EOF -> EOFEntity
+    else -> error("started parsing some cringe '$t'")
 }
 
 fun Lexer.parseInfix(currentEntity: Entity): Entity {
-    gobbleNewlines()
     return when (
         val t = try {
             next()
@@ -50,8 +50,9 @@ fun Lexer.parseInfix(currentEntity: Entity): Entity {
         EqualsToken -> (currentEntity as Expression<*>) Equals parseExpression()
         NotEqualsToken -> (currentEntity as Expression<*>) NotEquals parseExpression()
         LeftBrace, RightBrace -> currentEntity // theres no infix to parse
+        EOF -> currentEntity // end of the road buddy
         NewlineToken -> error("impossibru!!!!!!!!!! newline token appeared after being gobbled???")
-        else -> TODO("continued parsing some cringe: $t, current: $currentEntity")
+        else -> error("continued parsing some cringe: '$t', current: $currentEntity")
     }
 }
 
